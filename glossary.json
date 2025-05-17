@@ -1,3 +1,4 @@
+{
     "adatbázis": "database",
     "adatbázis-kezelő rendszer": "Database Management System",
     "adatbázis-módosítás": "database modification",
@@ -225,3 +226,4 @@
     "visszagörgetés": "rollback",
     "XML séma": "XML schema",
     "záradék": "clause"
+}
