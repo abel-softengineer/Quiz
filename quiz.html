@@ -71,12 +71,6 @@
       const userInput = document.getElementById("answer").value.trim().toLowerCase();
       const result = document.getElementById("result");
 
-      if (!userInput) {
-        result.textContent = "Kérlek, írj be valamit!";
-        result.className = "error";
-        return;
-      }
-
       if (askInHungarian) {
         // magyar szót kérünk, angol a helyes válasz
         const correct = words[current][1].toLowerCase();
