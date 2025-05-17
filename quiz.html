@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>Angol szókvíz</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 500px;
+      margin: auto;
+      padding: 2em;
+      background-color: #f2f2f2;
+      border-radius: 1em;
+    }
+    input, button {
+      font-size: 1.2em;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
+    #result {
+      margin-top: 1em;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Magyar - Angol szókvíz</h1>
+  <p>Mi az angol megfelelője ennek a szónak?</p>
+  <h2 id="word"></h2>
+  <input type="text" id="answer" placeholder="Írd be az angol szót">
+  <br>
+  <button onclick="checkAnswer()">Ellenőrzés</button>
+  <p id="result"></p>
+  <button onclick="nextWord()">Következő szó</button>
+
+  <script>
+    const words = [
+      ["adatbázis", "database"],
+      ["tábla", "table"],
+      ["oszlop", "column"],
+      ["kulcs", "key"],
+      ["lekérdezés", "query"],
+      ["idegen kulcs", "foreign key"],
+      ["kapcsolat", "relationship"],
+      ["tranzakció", "transaction"],
+      ["beszúrás", "insertion"],
+      ["törlés", "deletion"]
+      // Ide jöhetnek még a szópárok
+    ];
+
+    let current = 0;
+
+    function nextWord() {
+      const index = Math.floor(Math.random() * words.length);
+      current = index;
+      document.getElementById("word").textContent = words[index][0];
+      document.getElementById("answer").value = "";
+      document.getElementById("result").textContent = "";
+    }
+
+    function checkAnswer() {
+      const userInput = document.getElementById("answer").value.trim().toLowerCase();
+      const correct = words[current][1].toLowerCase();
+      const result = document.getElementById("result");
+
+      if (userInput === correct) {
+        result.textContent = "✅ Helyes!";
+        result.style.color = "green";
+      } else {
+        result.textContent = `❌ Helytelen! A helyes válasz: ${words[current][1]}`;
+        result.style.color = "red";
+      }
+    }
+
+    // Indításkor töltsön be egy szót
+    window.onload = nextWord;
+  </script>
+</body>
+</html>
