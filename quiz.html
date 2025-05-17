@@ -1,52 +1,366 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Angol szókvíz</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+    :root {
+      --bg-color: #1e1e1e;
+      --primary-color: #ff9500; /* narancssárga */
+      --text-color: #ddd;
+      --input-bg: #2c2c2c;
+      --input-border: #444;
+      --button-bg: #ff9500;
+      --button-hover-bg: #cc7a00;
+      --error-color: #ff3b30;
+      --success-color: #4cd964;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: sans-serif;
-      max-width: 500px;
-      margin: auto;
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      max-width: 480px;
+      margin: 3em auto;
       padding: 2em;
-      background-color: #f2f2f2;
       border-radius: 1em;
+      box-shadow: 0 0 15px rgba(255, 149, 0, 0.3);
     }
-    input, button {
+
+    h1, h2, p {
+      margin: 0.3em 0;
+    }
+
+    h1 {
+      text-align: center;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 1em;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      font-weight: 600;
+      font-size: 2.2em;
+      color: var(--primary-color);
+      margin: 0.5em 0 1em 0;
+      text-align: center;
+      min-height: 3em;
+    }
+
+    p {
+      font-size: 1.1em;
+      text-align: center;
+      margin-bottom: 1em;
+      color: #aaa;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.7em 1em;
       font-size: 1.2em;
-      padding: 0.5em;
-      margin-top: 1em;
+      border: 2px solid var(--input-border);
+      border-radius: 0.5em;
+      background-color: var(--input-bg);
+      color: var(--text-color);
+      transition: border-color 0.3s;
     }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background-color: #3a3a3a;
+    }
+
+    button {
+      cursor: pointer;
+      background-color: var(--button-bg);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.2em;
+      padding: 0.7em 1.5em;
+      margin-top: 1em;
+      margin-right: 0.5em;
+      border-radius: 0.5em;
+      box-shadow: 0 4px 6px rgba(255, 149, 0, 0.4);
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    button:hover {
+      background-color: var(--button-hover-bg);
+      box-shadow: 0 6px 8px rgba(204, 122, 0, 0.7);
+    }
+
     #result {
       margin-top: 1em;
-      font-weight: bold;
+      font-weight: 700;
+      font-size: 1.3em;
+      text-align: center;
+      min-height: 2em;
+      user-select: none;
+    }
+
+    #result.success {
+      color: var(--success-color);
+    }
+
+    #result.error {
+      color: var(--error-color);
     }
   </style>
 </head>
 <body>
   <h1>Magyar - Angol szókvíz</h1>
   <p>Mi az angol megfelelője ennek a szónak?</p>
-  <h2 id="word"></h2>
-  <input type="text" id="answer" placeholder="Írd be az angol szót">
-  <br>
-  <button onclick="checkAnswer()">Ellenőrzés</button>
+  <h2 id="word">–</h2>
+  <input type="text" id="answer" placeholder="Írd be az angol szót" autocomplete="off" />
+  <div style="text-align:center;">
+    <button onclick="checkAnswer()">Ellenőrzés</button>
+    <button onclick="nextWord()">Következő szó</button>
+  </div>
   <p id="result"></p>
-  <button onclick="nextWord()">Következő szó</button>
 
   <script>
-    const words = [
-      ["adatbázis", "database"],
-      ["tábla", "table"],
-      ["oszlop", "column"],
-      ["kulcs", "key"],
-      ["lekérdezés", "query"],
-      ["idegen kulcs", "foreign key"],
-      ["kapcsolat", "relationship"],
-      ["tranzakció", "transaction"],
-      ["beszúrás", "insertion"],
-      ["törlés", "deletion"]
-      // Ide jöhetnek még a szópárok
-    ];
+     glossary = {
+    "adatbázis": "database",
+    "adatbázis-kezelő rendszer": "Database Management System",
+    "adatbázis-módosítás": "database modification",
+    "adatbázis-objektum": "database object",
+    "adatbázisséma": "database schema",
+    "adatdefiníciós nyelv": "Data Definition Language",
+    "adatelérés": "value access",
+    "adatgráf": "data graph",
+    "adatmanipulációs nyelv": "Data Manipulation Language",
+    "adatmodell": "data model",
+    "adatszerkezet, adatok struktúrája": "data structure",
+    "adattárház": "data warehouse",
+    "akció": "action",
+    "alapértelmezett érték": "default value",
+    "alaptábla": "base table",
+    "algebrai lekérdezés": "algebraic query",
+    "alkérdés": "subquery",
+    "alosztály": "subclass",
+    "anomáliák kiküszöbölése": "elimination of anomalies",
+    "anti összekapcsolás": "anti join",
+    "asszociativitás": "associativity",
+    "átfedésben álló utasítások": "interleaving of statements",
+    "átnevezés": "renaming",
+    "atomiság": "atomicity",
+    "attribútum": "attribute",
+    "attribútum alapú megszorítás, érték alapú megszorítás": "value-based constraint",
+    "beágyazott ciklus": "nested loop",
+    "beágyazott reláció": "nested relation",
+    "beágyazott tábla": "nested table",
+    "belső összekapcsolások": "inner join",
+    "beszúrás": "insertion",
+    "beszúrási anomália": "insertion anomaly",
+    "bővítés": "augmentation",
+    "ciklus": "loop",
+    "címke": "label, tag",
+    "csoportosítás": "grouping",
+    "deklaráció": "declaration",
+    "deklaratív nyelv": "declarative language",
+    "Descartes-szorzat": "product",
+    "dokumentum-csomópont": "document node",
+    "dokumentumok megosztása": "sharing of documents",
+    "egy stratégia kiválasztása": "choosing a policy",
+    "egyed, entitás": "entity",
+    "egyedhalmaz": "entity set",
+    "egyed-kapcsolat diagram": "entity-relationship diagram",
+    "egyed-kapcsolat modell": "entity-relationship model",
+    "egyen-összekapcsolás, egyenlőség alapú összekapcsolás": "equi join",
+    "egymásra ható folyamatok": "interacting processes",
+    "egysoros alkérdés": "single-tuple subquery",
+    "egyszerű típus": "simple type",
+    "él": "edge",
+    "elágazó kifejezés": "branching expression",
+    "elemleírás": "element description",
+    "elkülönítés": "isolation",
+    "elkülönítési szint": "isolation level",
+    "elsődleges attribútum": "prime attribute",
+    "engedélyezési diagram": "grant diagram",
+    "érvényes XML": "valid XML",
+    "esemény": "event",
+    "exponenciális algoritmus": "exponential algorithm",
+    "felbontás": "decomposition",
+    "felhasználó által definiált adattípus": "user-defined data type",
+    "félig összekapcsolás": "semi join",
+    "feltétel": "condition",
+    "felvázolás, vázlatkészítés": "sketching",
+    "formális szemantika": "formal semantics",
+    "forrás": "source",
+    "frissítés": "update",
+    "funkcionális függőség": "functional dependency",
+    "függőségek megőrzése": "dependency preservation",
+    "geometriai reprezentáció": "geometric view",
+    "globális megszorítás": "assertion",
+    "gyenge egyedhalmazok": "weak entity set",
+    "gyökérjelölő": "root tag",
+    "halmazszemantika": "set semantics",
+    "hangolás": "tuning",
+    "hangolási szakértő": "tuning advisor",
+    "harmadik normálforma": "third normal form",
+    "háromértékű logika": "three-valued logic",
+    "hatékonyság": "efficiency",
+    "helyreállítás-kezelő": "recovery manager",
+    "helytelen lekérdezés": "illegal query",
+    "hivatkozás": "reference",
+    "hivatkozási épség megszorítás": "referential integrity constraint",
+    "idegen kulcs": "foreign key",
+    "indukció": "induction",
+    "információintegráció": "information integration",
+    "ismételhető olvasás": "repeatable read",
+    "ismétlődés": "duplicate",
+    "ismétlődéskiküszöbölés": "duplicate elimination",
+    "jelölő, címke": "tag",
+    "jogosultság": "privilege",
+    "jogosultsági azonosító": "authorization ID",
+    "jogosultságkezelés": "authorization",
+    "jogosultságok megadása": "granting privileges",
+    "jogosultságok visszavonása": "revoking privileges",
+    "jól formált XML": "well-formed XML",
+    "kapcsolathalmaz": "relationship set",
+    "kapcsos zárójel": "brace",
+    "keretrendszer": "framework",
+    "kiegyensúlyozott keresési fa": "balanced search tree",
+    "kifejezés": "expression",
+    "kifejezésnyelv": "expression language",
+    "kikényszeríthetetlen": "unenforceable",
+    "kiválasztás": "selection",
+    "kommutativitás": "commutativity",
+    "komplementálás": "complementation",
+    "konstans": "constant",
+    "konzisztencia": "consistency",
+    "következmény funkcionális függőség": "implied functional dependency",
+    "következtetés, implikáció": "implication",
+    "közvetítő": "mediator",
+    "kulcs": "key",
+    "különbség": "difference",
+    "külső összekapcsolás": "outer join",
+    "kvantor": "quantifier",
+    "lekérdezésfa": "expression tree",
+    "lekérdezésterhelési kimutatás": "query load",
+    "lekérdező nyelv": "query language",
+    "levélcsúcs": "leaf node",
+    "lezárt": "closure",
+    "logikai művelet": "boolean operator",
+    "lógó sor": "dangling tuple",
+    "materializált": "materialized",
+    "megszorítás": "constraint",
+    "metódus": "method",
+    "metszet": "intersection",
+    "mező": "field",
+    "mezőelérés": "field access",
+    "minimális bázis": "minimal basis",
+    "minta": "pattern",
+    "módosítási anomália": "update anomaly",
+    "monoton": "monotone",
+    "multihalmaz-szemantika": "bag semantics",
+    "multiplicitás": "multiplicity",
+    "mutató": "pointer",
+    "működési szemantika": "operational semantics",
+    "művelet": "operation, operator",
+    "naplózás": "logging",
+    "negyedik normálforma": "fourth normal form",
+    "nem triviális": "nontrivial",
+    "nem véglegesített olvasás": "read uncommitted",
+    "névtér": "namespace",
+    "nézettábla": "view",
+    "normálforma": "normal form",
+    "normalizálás": "normalization",
+    "objektum azonosító": "object ID",
+    "objektum-relációs kiterjesztés": "object-relational extension",
+    "operandus": "operand",
+    "oszloptípus": "column type",
+    "önmagában álló lekérdezés": "stand-alone query",
+    "önmagával vett összekapcsolás": "self-join",
+    "ősosztály": "super class",
+    "összehasonlítás": "comparison",
+    "összekapcsolás": "join",
+    "összesítés, aggregáció": "aggregation",
+    "összetett típus": "complex type",
+    "perjel": "slash",
+    "pont": "node",
+    "predikátum": "predicate",
+    "redundancia": "redundancy",
+    "redundáns": "redundant",
+    "reflexivitás": "reflexivity",
+    "régió": "region",
+    "reláció": "relation",
+    "relációelőfordulás": "relation instance",
+    "relációs adatmodell": "relational model",
+    "relációs algebra": "relational algebra",
+    "relációséma": "relation schema",
+    "rendező metódus": "order method",
+    "reprezentáns": "representative",
+    "rugalmas megjelenítés": "flexible representation",
+    "sok-egy kapcsolat": "many-one relationship",
+    "sok-sok kapcsolat": "many-many relationship",
+    "sor": "tuple",
+    "sor alapú megszorítás": "tuple-based constraint",
+    "sorbarendezhető": "serializable",
+    "sorazonosító": "row ID",
+    "sortípus": "row type",
+    "sorváltozó": "tuple variable",
+    "speciális eset": "special case",
+    "SQL lekérdezés": "SQL query",
+    "strukturált lekérdezőnyelv": "Structured Query Language",
+    "szabály": "rule",
+    "szelektor": "selector",
+    "szerep": "role",
+    "szigorú összehasonlítás": "strict comparison",
+    "szűrési feltétel": "selection condition",
+    "tábla": "table",
+    "tabló": "tableau",
+    "támogató": "supporting",
+    "tartósság": "durability",
+    "tengely": "axis",
+    "tengelyek": "axes",
+    "tér": "space",
+    "természetes összekapcsolás": "natural join",
+    "tervezés": "design",
+    "tervezési technika": "design technique",
+    "tétel, elem": "item",
+    "tételek listája, tételek szekvenciája": "sequence of items",
+    "théta-összekapcsolás": "theta-join",
+    "típuskonstruktor": "type constructor",
+    "továbbgyűrűzés": "cascade",
+    "többattribútumú kulcs": "multi-attribute key",
+    "többértékű függőség": "multivalued dependency",
+    "többrelációs lekérdezés": "multirelation query",
+    "többszörös öröklés": "multiple inheritance",
+    "törlés": "deletion",
+    "törlési anomália": "deletion anomaly",
+    "tranzakció": "transaction",
+    "tranzitivitás": "transitivity",
+    "tulajdonos": "owner",
+    "unió": "union",
+    "út": "path",
+    "utasítás": "statement",
+    "útkifejezés": "path expression",
+    "üres elem": "empty element",
+    "változó": "variable",
+    "végleges": "permanent",
+    "véglegesített olvasás": "read committed",
+    "végrehajtási idő": "running time",
+    "veszteségmentes felbontás": "lossless join",
+    "vetítés": "projection",
+    "virtuális": "virtual",
+    "visszagörgetés": "rollback",
+    "XML séma": "XML schema",
+    "záradék": "clause"
+}
+
+    // Szavak tömbbé alakítása [magyar, angol]
+    const words = Object.entries(glossary);
 
     let current = 0;
 
@@ -55,7 +369,10 @@
       current = index;
       document.getElementById("word").textContent = words[index][0];
       document.getElementById("answer").value = "";
-      document.getElementById("result").textContent = "";
+      const result = document.getElementById("result");
+      result.textContent = "";
+      result.className = "";
+      document.getElementById("answer").focus();
     }
 
     function checkAnswer() {
@@ -63,16 +380,21 @@
       const correct = words[current][1].toLowerCase();
       const result = document.getElementById("result");
 
+      if (!userInput) {
+        result.textContent = "Kérlek, írj be valamit!";
+        result.className = "error";
+        return;
+      }
+
       if (userInput === correct) {
         result.textContent = "✅ Helyes!";
-        result.style.color = "green";
+        result.className = "success";
       } else {
         result.textContent = `❌ Helytelen! A helyes válasz: ${words[current][1]}`;
-        result.style.color = "red";
+        result.className = "error";
       }
     }
 
-    // Indításkor töltsön be egy szót
     window.onload = nextWord;
   </script>
 </body>
